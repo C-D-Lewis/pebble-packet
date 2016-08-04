@@ -2,6 +2,8 @@
 
 Simple wrapper for AppMessage integer and string types with built in error reporting.
 
+Available on [NPM](https://www.npmjs.com/package/pebble-packet).
+
 ## How to use
 
 1. Ensure `AppMessage` is open:
