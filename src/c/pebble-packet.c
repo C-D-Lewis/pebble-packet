@@ -40,6 +40,15 @@ bool packet_begin() {
   return true;
 }
 
+bool packet_send() {
+  AppMessageResult r = app_message_outbox_send();
+  if(r != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Error sending outbox! Reason: %s", TAG, result_to_string(r));
+    return false;
+  }
+  return true;
+}
+
 bool packet_put_integer(int key, int value) {
   DictionaryResult r = dict_write_int32(s_outbox, key, value);
   if(r != DICT_OK) {
@@ -58,11 +67,32 @@ bool packet_put_string(int key, char *string) {
   return true;
 }
 
-bool packet_send() {
-  AppMessageResult r = app_message_outbox_send();
-  if(r != APP_MSG_OK) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Error sending outbox! Reason: %s", TAG, result_to_string(r));
-    return false;
+bool packet_put_boolean(int key, bool b) {
+  return packet_put_integer(key, b ? 1 : 0);
+}
+
+int packet_get_size(DictionaryIterator *inbox_iter) {
+  return (int)inbox_iter->end - (int)inbox_iter->dictionary;
+}
+
+bool packet_contains_key(DictionaryIterator *inbox_iter, int key) {
+  return dict_find(inbox_iter, key) != NULL;
+}
+
+int packet_get_integer(DictionaryIterator *inbox_iter, int key) {
+  if(!packet_contains_key(inbox_iter, key)) {
+    return 0;
   }
-  return true;
+  return dict_find(inbox_iter, key)->value->int32;
+}
+
+char* packet_get_string(DictionaryIterator *inbox_iter, int key) {
+  if(!packet_contains_key(inbox_iter, key)) {
+    return NULL;
+  }
+  return dict_find(inbox_iter, key)->value->cstring;
+}
+
+bool packet_get_boolean(DictionaryIterator *inbox_iter, int key) {
+  return packet_get_integer(inbox_iter, key) == 1;
 }
