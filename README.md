@@ -67,6 +67,9 @@ See `include/pebble-packet.h` for function documentation.
 - Add `packet_get_size()`, `packet_contains_key()`, `packet_put_boolean()`, 
   `packet_get_boolean()`, `packet_get_integer()`, and `packet_get_string()`.
 
+**1.2**
+- Build for Diorite platform on SDK 4.0
+
 
 ## TODO
 

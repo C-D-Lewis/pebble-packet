@@ -1,7 +1,7 @@
 {
   "name": "pebble-packet",
   "author": "Chris Lewis",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "files": ["dist.zip"],
   "keywords": ["pebble-package"],
   "dependencies": { },
@@ -11,7 +11,8 @@
     "targetPlatforms": [
       "aplite",
       "basalt",
-      "chalk"
+      "chalk",
+      "diorite"
     ],
     "resources": {
       "media": []
