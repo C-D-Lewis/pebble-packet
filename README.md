@@ -5,7 +5,6 @@ reporting. Never directly use `DictionaryIterator` or `Tuple` again!
 
 Available on [NPM](https://www.npmjs.com/package/pebble-packet).
 
-
 ## How to use
 
 1. Install the Pebble package:
@@ -14,7 +13,13 @@ Available on [NPM](https://www.npmjs.com/package/pebble-packet).
   $ pebble package install pebble-packet
   ```
 
-2. Ensure `AppMessage` is open:
+2. Add the pebble-package include at the top of your source.
+
+  ```c
+  #include <pebble-package/pebble-package.h>
+  ```
+
+3. Ensure `AppMessage` is open:
 
   ```c
   const int inbox = 128;
@@ -22,7 +27,7 @@ Available on [NPM](https://www.npmjs.com/package/pebble-packet).
   app_message_open(inbox, outbox);
   ```
 
-3. Begin, build, and send a packet:
+4. Begin, build, and send a packet:
 
   ```c
   if(packet_begin()) {
@@ -32,9 +37,12 @@ Available on [NPM](https://www.npmjs.com/package/pebble-packet).
   }
   ```
 
-4. Get data from a received dictionary:
+5. Get data from a received dictionary:
 
   ```c
+  // in your setup after the app_message_open call
+  app_message_register_inbox_received(in_recv_handler);
+  
   static void in_recv_handler(DictionaryIterator *iter, void *context) {
     if(packet_contains_key(iter, MESSAGE_KEY_Integer)) {
       APP_LOG(APP_LOG_LEVEL_INFO, "Got int: %d", packet_get_integer(iter, MESSAGE_KEY_Integer));
