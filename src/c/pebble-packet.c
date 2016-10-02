@@ -1,8 +1,15 @@
 #include "pebble-packet.h"
 
-#define TAG "pebble-packet"
+#include <pebble-events/pebble-events.h>
+
+#define TAG        "pebble-packet"
+#define TIMEOUT_MS 5000
+
+static PacketFailedCallback *s_failed_callback;
 
 static DictionaryIterator *s_outbox;
+static EventHandle *s_sent_handle, *s_failed_handle;
+static AppTimer *s_timeout_timer;
 
 /********************************** Internal **********************************/
 
@@ -29,6 +36,36 @@ static char *result_to_string(AppMessageResult result) {
   }
 }
 
+static void timeout_handler(void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Timed out!", TAG);
+  s_timeout_timer = NULL;
+  s_failed_callback();
+}
+
+static void start_timeout_timer() {
+  if(s_timeout_timer) {
+    app_timer_cancel(s_timeout_timer);
+    s_timeout_timer = NULL;
+  }
+  s_timeout_timer = app_timer_register(TIMEOUT_MS, timeout_handler, NULL);
+}
+
+// Success!
+static void outbox_sent_handler(DictionaryIterator *iterator, void *context) {
+  events_app_message_unsubscribe(s_sent_handle);
+  events_app_message_unsubscribe(s_failed_handle);
+
+  if(s_timeout_timer) {
+    app_timer_cancel(s_timeout_timer);
+    s_timeout_timer = NULL;
+  }
+}
+static void outbox_failed_handler(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  // Failed to send
+  APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Outbox send failed! Reason: %s", TAG, result_to_string(reason));
+  s_failed_callback();
+}
+
 /************************************ API *************************************/
 
 bool packet_begin() {
@@ -40,12 +77,19 @@ bool packet_begin() {
   return true;
 }
 
-bool packet_send() {
+bool packet_send(PacketFailedCallback *cb) {
+  s_failed_callback = cb;
   AppMessageResult r = app_message_outbox_send();
   if(r != APP_MSG_OK) {
+    // Failed immediately
     APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Error sending outbox! Reason: %s", TAG, result_to_string(r));
+    s_failed_callback();
     return false;
   }
+
+  s_sent_handle = events_app_message_register_outbox_sent(outbox_sent_handler, NULL);
+  s_failed_handle = events_app_message_register_outbox_failed(outbox_failed_handler, NULL);
+  start_timeout_timer();
   return true;
 }
 

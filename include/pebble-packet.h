@@ -2,6 +2,9 @@
 
 #include <pebble.h>
 
+// Callback when a send failed, but not when attempting the send.
+typedef void(PacketFailedCallback)(void);
+
 // Begin a new packet. Must be called before putting anything in it.
 // Returns:
 //   bool - true if the packet was successfully initialised, false otherwise.
@@ -32,11 +35,13 @@ bool packet_put_string(int key, char *string);
 //   bool - true if the boolean was written to the packet, false otherwise.
 bool packet_put_boolean(int key, bool b);
 
-// Send the packet.
+// Send the packet, and optionally retry if an AppMessage failure occurs.
+// Parameters:
+//   cb - Callback to call when sending fails. Use this to rebuild and retry your message.
 // Returns:
 //   bool - true if the packet was successfully sent, false otherwise.
 //          Check app logs to see any error reason.
-bool packet_send();
+bool packet_send(PacketFailedCallback *cb);
 
 // Get the size of a received dictionary in bytes.
 // Parameters:

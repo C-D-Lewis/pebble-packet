@@ -14,12 +14,15 @@ Available on [NPM](https://www.npmjs.com/package/pebble-packet).
   $ pebble package install pebble-packet
   ```
 
-2. Ensure `AppMessage` is open:
+2. Ensure `AppMessage` is open by using 
+   [`pebble-events`](https://www.npmjs.com/package/pebble-events):
 
   ```c
   const int inbox = 128;
   const int outbox = 128;
-  app_message_open(inbox, outbox);
+  events_app_message_request_inbox_size(inbox);
+  events_app_message_request_outbox_size(outbox);
+  events_app_message_open();
   ```
 
 3. Begin, build, and send a packet:
@@ -70,9 +73,6 @@ See `include/pebble-packet.h` for function documentation.
 **1.2**
 - Build for Diorite platform on SDK 4.0
 
-
-## TODO
-
-- `AppMessageOutboxFailed` handling.
-- Some kind of 'is there a packet in progress?' boolean check.
-- Some kind of 'is `AppMessage` open?' check.
+**1.3**
+- Add `retry` parameter to `packet_send()` to detect send errors and rety after 
+  5s.
