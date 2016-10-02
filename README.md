@@ -81,5 +81,4 @@ See `include/pebble-packet.h` for function documentation.
 - Build for Diorite platform on SDK 4.0
 
 **1.3**
-- Add `retry` parameter to `packet_send()` to detect send errors and rety after 
-  5s.
+- Add failed handler so client apps can retry their packets.
