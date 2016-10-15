@@ -82,3 +82,6 @@ See `include/pebble-packet.h` for function documentation.
 
 **1.3**
 - Add failed handler so client apps can retry their packets.
+
+**1.3.1**
+- Add `NULL` check for retry callbacks.

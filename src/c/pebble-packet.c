@@ -39,7 +39,9 @@ static char *result_to_string(AppMessageResult result) {
 static void timeout_handler(void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Timed out!", TAG);
   s_timeout_timer = NULL;
-  s_failed_callback();
+  if(s_failed_callback) {
+    s_failed_callback();
+  }
 }
 
 static void start_timeout_timer() {
@@ -63,7 +65,9 @@ static void outbox_sent_handler(DictionaryIterator *iterator, void *context) {
 static void outbox_failed_handler(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
   // Failed to send
   APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Outbox send failed! Reason: %s", TAG, result_to_string(reason));
-  s_failed_callback();
+  if(s_failed_callback) {
+    s_failed_callback();
+  }
 }
 
 /************************************ API *************************************/
@@ -78,12 +82,17 @@ bool packet_begin() {
 }
 
 bool packet_send(PacketFailedCallback *cb) {
-  s_failed_callback = cb;
+  if(cb) {
+    s_failed_callback = cb;
+  }
+  
   AppMessageResult r = app_message_outbox_send();
   if(r != APP_MSG_OK) {
     // Failed immediately
     APP_LOG(APP_LOG_LEVEL_ERROR, "%s: Error sending outbox! Reason: %s", TAG, result_to_string(r));
-    s_failed_callback();
+    if(s_failed_callback) {
+      s_failed_callback();
+    }
     return false;
   }
 
