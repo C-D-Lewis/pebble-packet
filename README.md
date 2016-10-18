@@ -85,3 +85,6 @@ See `include/pebble-packet.h` for function documentation.
 
 **1.3.1**
 - Add `NULL` check for retry callbacks.
+
+**1.3.2**
+- Build for Emery
