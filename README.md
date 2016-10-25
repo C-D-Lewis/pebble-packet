@@ -16,7 +16,7 @@ Available on [NPM](https://www.npmjs.com/package/pebble-packet).
 2. Add the pebble-package include at the top of your source.
 
   ```c
-  #include <pebble-package/pebble-package.h>
+  #include <pebble-packet/pebble-packet.h>
   ```
 
 3. Ensure `AppMessage` is open:
